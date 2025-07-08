@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Pemilah Sampah Desa - Aplikasi Web</title>
+  <style>
+    body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
+    .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+    h1, h2 { color: #333; }
+    button, input, select { padding: 10px; margin-top: 10px; width: 100%; font-size: 16px; }
+    .hasil, .log { margin-top: 15px; font-weight: bold; }
+    .log { background-color: #e0ffe0; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pemilah Sampah Desa</h1>
+
+    <section>
+      <h2>Panduan Sampah</h2>
+      <p><strong>Organik:</strong> Daun kering, sisa makanan, kulit buah</p>
+      <p><strong>Non-Organik:</strong> Plastik, kaleng, botol kaca</p>
+    </section>
+
+    <section>
+      <h2>Kuis Edukasi</h2>
+      <p>Kulit pisang termasuk jenis sampah?</p>
+      <button onclick="jawabKuis('organik')">Organik</button>
+      <button onclick="jawabKuis('non')">Non-Organik</button>
+      <div id="hasilKuis" class="hasil"></div>
+    </section>
+
+    <section>
+      <h2>Upload Foto Sampah</h2>
+      <input type="file" accept="image/*" onchange="unggahFoto(event)">
+      <div id="hasilFoto" class="hasil"></div>
+    </section>
+
+    <section>
+      <h2>Laporan Harian</h2>
+      <input type="text" id="inputSampah" placeholder="Jenis sampah yang dipilah">
+      <button onclick="catatSampah()">Catat</button>
+      <div id="laporanLog" class="log"></div>
+    </section>
+
+    <section>
+      <h2>Poin Anda</h2>
+      <div id="poinDisplay" class="hasil">0</div>
+    </section>
+
+    <section>
+      <h2>Bahasa (Belum Aktif)</h2>
+      <select>
+        <option>Bahasa Indonesia</option>
+        <option>Bahasa Jawa</option>
+        <option>Bahasa Sunda</option>
+        <option>Bahasa Minang</option>
+        <option>Bahasa Bugis</option>
+      </select>
+    </section>
+  </div>
+
+  <script>
+    // Inisialisasi dari localStorage jika ada
+    let poin = parseInt(localStorage.getItem("poin")) || 0;
+    let laporan = JSON.parse(localStorage.getItem("laporan")) || [];
+
+    function updatePoinDisplay() {
+      document.getElementById("poinDisplay").innerText = poin;
+    }
+
+    function simpanLocalStorage() {
+      localStorage.setItem("poin", poin);
+      localStorage.setItem("laporan", JSON.stringify(laporan));
+    }
+
+    function jawabKuis(jawaban) {
+      const hasil = document.getElementById("hasilKuis");
+      if (jawaban === "organik") {
+        hasil.innerText = "Benar! Kulit pisang adalah sampah organik.";
+        poin += 10;
+      } else {
+        hasil.innerText = "Salah. Kulit pisang adalah organik.";
+      }
+      simpanLocalStorage();
+      updatePoinDisplay();
+    }
+
+    function unggahFoto(event) {
+      const file = event.target.files[0];
+      const hasil = document.getElementById("hasilFoto");
+      if (file) {
+        hasil.innerText = `Foto '${file.name}' berhasil diunggah. (fitur pengenalan belum aktif)`;
+      }
+    }
+
+    function catatSampah() {
+      const input = document.getElementById("inputSampah");
+      const log = document.getElementById("laporanLog");
+      const jenis = input.value.trim();
+      if (jenis !== "") {
+        const waktu = new Date().toLocaleString();
+        laporan.push({ waktu, jenis });
+        poin += 10;
+        log.innerHTML += `<p>${waktu}: ${jenis}</p>`;
+        input.value = "";
+        simpanLocalStorage();
+        updatePoinDisplay();
+      }
+    }
+
+    function tampilkanLaporan() {
+      const log = document.getElementById("laporanLog");
+      log.innerHTML = "";
+      laporan.forEach(entry => {
+        log.innerHTML += `<p>${entry.waktu}: ${entry.jenis}</p>`;
+      });
+    }
+
+    // Inisialisasi saat halaman dimuat
+    updatePoinDisplay();
+    tampilkanLaporan();
+  </script>
+</body>
+</html>
